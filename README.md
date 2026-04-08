@@ -1,6 +1,6 @@
 # Vim Config
 
-Lightweight vim config.
+Lightweight Vim config that mirrors the core editing feel of the Neovim setup without the IDE stack.
 
 ## Install
 
@@ -30,8 +30,6 @@ Requires `curl` and `git` for vim-plug bootstrap. On NixOS this is managed via h
 | vim-log-highlighting | Syntax highlighting for log files |
 | vim-highlightedyank | Flash feedback on yank |
 | lightline.vim | Statusline |
-| vim-fugitive | Git commands (`:Git status`, `:Git blame`, etc.) |
-| vim-signify | Git diff signs in the gutter |
 | vim-anzu | Search match count in statusline |
 
 ## Keybinds
@@ -42,8 +40,8 @@ Leader is `Space`.
 | Key | Action |
 |-----|--------|
 | `<leader>e` | Toggle netrw sidebar |
-| `<leader>/` | Ripgrep search |
-| `<leader>ff` | Find files (fzf) |
+| `<leader>/` | Ripgrep search from git root |
+| `<leader>ff` | Find files from git root (fzf) |
 | `<leader>fp` | Recent files (fzf) |
 | `<leader>fb` | Open buffers (fzf) |
 | `<leader>?` | Command history (fzf) |
@@ -52,26 +50,17 @@ Leader is `Space`.
 | Key | Action |
 |-----|--------|
 | `H` / `L` | Previous / next buffer |
-| `<leader>bd` | Force close buffer |
+| `<leader>bd` | Delete buffer safely |
 
 ### Windows
 | Key | Action |
 |-----|--------|
 | `<C-h/j/k/l>` | Navigate windows (skips netrw) |
 | `<C-Arrow>` | Resize windows |
-| `<leader>wh` | Horizontal split |
+| `<leader>wc` | Close window |
+| `<leader>ws` | Horizontal split |
 | `<leader>wv` | Vertical split |
-| `<leader>wd` | Close window |
-
-### Git
-| Key | Action |
-|-----|--------|
-| `<leader>gs` | Git status |
-| `<leader>gl` | Git log |
-| `<leader>gd` | Git diff |
-| `<leader>gb` | Git blame |
-| `<leader>ga` | Git add |
-| `<leader>gc` | Git commit |
+| `<leader>wm` | Maximize window |
 
 ### Other
 | Key | Action |

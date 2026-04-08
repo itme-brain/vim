@@ -16,24 +16,25 @@ call plug#begin('~/.vim/plugged')
   Plug 'mtdl9/vim-log-highlighting'
   Plug 'machakann/vim-highlightedyank'
   Plug 'itchyny/lightline.vim'
-  Plug 'tpope/vim-fugitive'
-  Plug 'mhinz/vim-signify'
   Plug 'osyo-manga/vim-anzu'
 call plug#end()
 
 let mapleader = "\<Space>"
 set background=dark
+if has('termguicolors')
+  set termguicolors
+endif
 silent! colorscheme base16-onedark
 
-highlight Normal  ctermbg=NONE guibg=NONE
+highlight Normal  ctermbg=NONE guibg=NONE ctermfg=White guifg=#FFFFFF
 highlight NonText ctermbg=NONE guibg=NONE
 highlight CursorLine ctermbg=NONE guibg=NONE
-highlight CursorLineNr ctermfg=Yellow guifg=#FFCC66 ctermbg=NONE guibg=NONE cterm=bold
-highlight HighlightedyankRegion ctermfg=Black guifg=#FFFFFF ctermbg=Yellow guibg=#FFA500
+highlight CursorLineNr ctermfg=Yellow guifg=#E5C07B ctermbg=NONE guibg=NONE cterm=bold gui=bold
+highlight HighlightedyankRegion ctermfg=Black guifg=#000000 ctermbg=Yellow guibg=yellow
 highlight NormalNC ctermbg=NONE guibg=NONE
 highlight Search ctermfg=Black guifg=#000000 ctermbg=Yellow guibg=#FFCC66
 highlight LineNr ctermbg=NONE guibg=NONE
-highlight Visual ctermbg=LightGray guibg=#E8E8E8 ctermfg=Black guifg=#000000
+highlight Visual ctermbg=Gray guibg=Gray ctermfg=Black guifg=Black
 
 let g:highlightedyank_highlight_duration = 140
 let g:lightline = { 'colorscheme': 'deus', }
@@ -74,7 +75,10 @@ set hidden
 
 set tabstop=2
 set shiftwidth=2
+set softtabstop=2
 set expandtab
+set smartindent
+set fillchars=eob:\ 
 
 set statusline=%{exists('*anzu#search_status')?anzu#search_status():''}
 
@@ -102,6 +106,31 @@ function! SafeWincmd(dir)
   execute 'wincmd ' . a:dir
 endfunction
 
+function! GitRoot()
+  let l:root = systemlist('git rev-parse --show-toplevel')
+  if v:shell_error == 0 && !empty(l:root) && !empty(l:root[0])
+    return l:root[0]
+  endif
+  return getcwd()
+endfunction
+
+function! SafeBdelete()
+  if &filetype ==# 'netrw'
+    echohl WarningMsg | echom 'Cannot delete buffer from netrw' | echohl None
+    return
+  endif
+
+  let l:buflisted = getbufinfo({'buflisted': 1})
+  if len(l:buflisted) <= 1
+    echohl WarningMsg | echom 'Cannot delete last buffer' | echohl None
+    return
+  endif
+
+  let l:buf = bufnr('%')
+  bprevious
+  execute 'bdelete ' . l:buf
+endfunction
+
 " --- Plugin management ---
 nnoremap <leader>pu :PlugUpdate<CR>
 nnoremap <leader>pd :PlugUpgrade<CR>
@@ -114,7 +143,7 @@ nmap N <Plug>(anzu-N-with-echo)
 nmap * <Plug>(anzu-star-with-echo)
 nmap # <Plug>(anzu-sharp-with-echo)
 nmap <Esc><Esc> <Plug>(anzu-clear-search-status)
-nnoremap <Esc> :noh<CR>
+nnoremap <Esc> :noh<Bar>let @/=""<CR>
 
 " --- Visual indentation ---
 vnoremap < <gv
@@ -137,30 +166,23 @@ nnoremap <C-Up> :resize +10<CR>
 nnoremap <C-Down> :resize -10<CR>
 
 " --- Window management ---
-nnoremap <leader>wh :split<CR>
+nnoremap <leader>wc :close<CR>
+nnoremap <leader>ws :split<CR>
 nnoremap <leader>wv :vsplit<CR>
-nnoremap <leader>wd :q<CR>
+nnoremap <leader>wm <C-w>_
 nnoremap <leader>ww :wincmd w<CR>
 nnoremap <leader>wW :wincmd W<CR>
 
-" --- Git (fugitive) ---
-nnoremap <leader>gs :Git status<CR>
-nnoremap <leader>gl :Git log<CR>
-nnoremap <leader>ga :Git add<CR>
-nnoremap <leader>gc :Git commit<CR>
-nnoremap <leader>gd :Git diff<CR>
-nnoremap <leader>gb :Git blame<CR>
-
 " --- File explorer & search ---
 nnoremap <leader>e :call NetrwToggle()<CR>
-nnoremap <leader>/ :Rg<Space>
-nnoremap <leader>ff :Files<CR>
+nnoremap <leader>/ :execute 'lcd ' . fnameescape(GitRoot()) <Bar> Rg<Space>
+nnoremap <leader>ff :execute 'lcd ' . fnameescape(GitRoot()) <Bar> Files<CR>
 nnoremap <leader>fp :History<CR>
 nnoremap <leader>fb :Buffers<CR>
 nnoremap <leader>? :History:<CR>
 
 " --- Buffers ---
-nnoremap <leader>bd :bd!<CR>
+nnoremap <leader>bd :call SafeBdelete()<CR>
 nnoremap H :bprevious<CR>
 nnoremap L :bnext<CR>
 
