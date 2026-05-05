@@ -15,7 +15,6 @@ call plug#begin('~/.vim/plugged')
   Plug 'junegunn/fzf.vim'
   Plug 'mtdl9/vim-log-highlighting'
   Plug 'machakann/vim-highlightedyank'
-  Plug 'itchyny/lightline.vim'
   Plug 'osyo-manga/vim-anzu'
 call plug#end()
 
@@ -24,7 +23,7 @@ set background=dark
 if has('termguicolors')
   set termguicolors
 endif
-silent! colorscheme base16-onedark
+silent! colorscheme anticuus
 
 highlight Normal  ctermbg=NONE guibg=NONE ctermfg=White guifg=#FFFFFF
 highlight NonText ctermbg=NONE guibg=NONE
