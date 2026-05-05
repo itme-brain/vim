@@ -8,7 +8,6 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
   \| endif
 
 call plug#begin('~/.vim/plugged')
-  Plug 'chriskempson/base16-vim'
   Plug 'tpope/vim-surround'
   Plug 'jiangmiao/auto-pairs'
   Plug 'junegunn/fzf', { 'do': { -> fzf#install()  }  }
@@ -36,7 +35,6 @@ highlight LineNr ctermbg=NONE guibg=NONE
 highlight Visual ctermbg=Gray guibg=Gray ctermfg=Black guifg=Black
 
 let g:highlightedyank_highlight_duration = 140
-let g:lightline = { 'colorscheme': 'deus', }
 
 let $FZF_DEFAULT_OPTS = '--bind=tab:up,shift-tab:down'
 let g:fzf_layout = { 'window': 'enew' }
