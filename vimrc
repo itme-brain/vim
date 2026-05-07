@@ -144,6 +144,23 @@ function! GitRoot()
   return getcwd()
 endfunction
 
+function! FzfRg()
+  if exists(':Rg') != 2
+    echohl WarningMsg | echom 'fzf.vim :Rg command is not available' | echohl None
+    return
+  endif
+  if !executable('rg')
+    echohl WarningMsg | echom 'ripgrep executable "rg" is not available' | echohl None
+    return
+  endif
+  let l:query = input('Rg: ')
+  if empty(l:query)
+    return
+  endif
+  execute 'lcd ' . fnameescape(GitRoot())
+  execute 'Rg ' . escape(l:query, '|')
+endfunction
+
 function! SafeBdelete()
   if &filetype ==# 'netrw'
     echohl WarningMsg | echom 'Cannot delete buffer from netrw' | echohl None
@@ -184,10 +201,11 @@ nnoremap <C-U> <C-U>zz
 nnoremap <C-D> <C-D>zz
 
 " --- Window navigation (skips netrw) ---
-nnoremap <C-h> :call SafeWincmd('h')<CR>
-nnoremap <C-j> :call SafeWincmd('j')<CR>
-nnoremap <C-k> :call SafeWincmd('k')<CR>
-nnoremap <C-l> :call SafeWincmd('l')<CR>
+nnoremap <silent> <C-h> :call SafeWincmd('h')<CR>
+nnoremap <silent> <BS> :call SafeWincmd('h')<CR>
+nnoremap <silent> <C-j> :call SafeWincmd('j')<CR>
+nnoremap <silent> <C-k> :call SafeWincmd('k')<CR>
+nnoremap <silent> <C-l> :call SafeWincmd('l')<CR>
 
 " --- Window resize ---
 nnoremap <C-Right> :vertical resize +10<CR>
@@ -205,7 +223,7 @@ nnoremap <leader>wW :wincmd W<CR>
 
 " --- File explorer & search ---
 nnoremap <leader>e :call NetrwToggle()<CR>
-nnoremap <leader>/ :execute 'lcd ' . fnameescape(GitRoot()) <Bar> Rg<Space>
+nnoremap <leader>/ :call FzfRg()<CR>
 nnoremap <leader>ff :execute 'lcd ' . fnameescape(GitRoot()) <Bar> Files<CR>
 nnoremap <leader>fp :History<CR>
 nnoremap <leader>fb :Buffers<CR>
