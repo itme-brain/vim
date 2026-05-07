@@ -164,10 +164,12 @@ function! FzfRg()
   if executable('rg') && exists(':Rg') == 2
     execute 'Rg ' . escape(l:query, '|')
   else
-    let l:grepprg = &grepprg
-    set grepprg=grep\ -RIn
-    execute 'silent grep! ' . shellescape(l:query) . ' .'
-    let &grepprg = l:grepprg
+    let l:results = system('grep -RIn -e ' . shellescape(l:query) . ' . 2>/dev/null')
+    if empty(l:results)
+      echohl WarningMsg | echom 'No matches found' | echohl None
+      return
+    endif
+    cgetexpr split(l:results, "\n")
     copen
   endif
 endfunction
