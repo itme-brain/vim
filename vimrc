@@ -145,20 +145,24 @@ function! GitRoot()
 endfunction
 
 function! FzfRg()
-  if exists(':Rg') != 2
-    echohl WarningMsg | echom 'fzf.vim :Rg command is not available' | echohl None
+  if exists(':Rg') != 2 && exists(':grep') != 2
+    echohl WarningMsg | echom 'No project search command is available' | echohl None
     return
   endif
-  if !executable('rg')
-    echohl WarningMsg | echom 'ripgrep executable "rg" is not available' | echohl None
-    return
-  endif
-  let l:query = input('Rg: ')
+  let l:query = input('Search: ')
   if empty(l:query)
     return
   endif
   execute 'lcd ' . fnameescape(GitRoot())
-  execute 'Rg ' . escape(l:query, '|')
+  if executable('rg') && exists(':Rg') == 2
+    execute 'Rg ' . escape(l:query, '|')
+  else
+    let l:grepprg = &grepprg
+    set grepprg=grep\ -RIn
+    execute 'silent grep! ' . shellescape(l:query) . ' .'
+    let &grepprg = l:grepprg
+    copen
+  endif
 endfunction
 
 function! SafeBdelete()
