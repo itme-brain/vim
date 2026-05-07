@@ -67,7 +67,7 @@ let g:netrw_altv = 1
 
 augroup vimrc_netrw
   autocmd!
-  autocmd FileType netrw setlocal nobuflisted
+  autocmd FileType,BufEnter,BufWinEnter * call HideNetrwBuffer()
   autocmd FileType netrw nnoremap <buffer> <C-l> :wincmd l<CR>
   autocmd FileType netrw nnoremap <buffer> <C-h> :wincmd h<CR>
   autocmd FileType netrw nnoremap <buffer> <C-j> :wincmd j<CR>
@@ -192,8 +192,21 @@ function! SafeBdelete()
   execute 'bdelete ' . l:buf
 endfunction
 
+function! IsNetrwBuffer(buf)
+  let l:name = bufname(a:buf)
+  return getbufvar(a:buf, '&filetype') =~# '^netrw'
+    \ || fnamemodify(l:name, ':t') ==# 'NetrwTreeListing'
+    \ || (!empty(l:name) && isdirectory(l:name))
+endfunction
+
+function! HideNetrwBuffer()
+  if IsNetrwBuffer(bufnr('%'))
+    setlocal nobuflisted
+  endif
+endfunction
+
 function! ListedFileBuffers()
-  return filter(range(1, bufnr('$')), 'buflisted(v:val) && getbufvar(v:val, "&filetype") !=# "netrw"')
+  return filter(range(1, bufnr('$')), 'buflisted(v:val) && !IsNetrwBuffer(v:val)')
 endfunction
 
 function! SafeBnext(dir)
@@ -214,6 +227,10 @@ function! SafeBnext(dir)
 
   execute 'buffer ' . l:buffers[l:index]
 endfunction
+
+if exists(':Buffers') == 2
+  command! -bar -bang -nargs=? -complete=buffer Buffers call fzf#vim#buffers(<q-args>, ListedFileBuffers(), fzf#vim#with_preview({ 'placeholder': '{1}' }), <bang>0)
+endif
 
 " --- Plugin management ---
 nnoremap <leader>pu :PlugUpdate<CR>
