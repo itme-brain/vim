@@ -107,7 +107,13 @@ function! NetrwToggle()
     endif
   endfor
   let g:netrw_return_win = winnr()
-  Lexplore
+  if exists(':Lexplore') == 2
+    Lexplore
+  elseif exists(':Vexplore') == 2
+    execute 'topleft ' . g:netrw_winsize . 'Vexplore'
+  else
+    Explore
+  endif
 endfunction
 
 function! SafeWincmd(dir)
