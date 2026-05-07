@@ -67,6 +67,7 @@ let g:netrw_altv = 1
 
 augroup vimrc_netrw
   autocmd!
+  autocmd FileType netrw setlocal nobuflisted
   autocmd FileType netrw nnoremap <buffer> <C-l> :wincmd l<CR>
   autocmd FileType netrw nnoremap <buffer> <C-h> :wincmd h<CR>
   autocmd FileType netrw nnoremap <buffer> <C-j> :wincmd j<CR>
@@ -191,6 +192,29 @@ function! SafeBdelete()
   execute 'bdelete ' . l:buf
 endfunction
 
+function! ListedFileBuffers()
+  return filter(range(1, bufnr('$')), 'buflisted(v:val) && getbufvar(v:val, "&filetype") !=# "netrw"')
+endfunction
+
+function! SafeBnext(dir)
+  let l:buffers = ListedFileBuffers()
+  if empty(l:buffers)
+    return
+  endif
+
+  let l:current = bufnr('%')
+  let l:index = index(l:buffers, l:current)
+  if l:index < 0
+    let l:index = 0
+  elseif a:dir > 0
+    let l:index = (l:index + 1) % len(l:buffers)
+  else
+    let l:index = (l:index - 1 + len(l:buffers)) % len(l:buffers)
+  endif
+
+  execute 'buffer ' . l:buffers[l:index]
+endfunction
+
 " --- Plugin management ---
 nnoremap <leader>pu :PlugUpdate<CR>
 nnoremap <leader>pd :PlugUpgrade<CR>
@@ -244,8 +268,8 @@ nnoremap <leader>? :History:<CR>
 
 " --- Buffers ---
 nnoremap <leader>bd :call SafeBdelete()<CR>
-nnoremap H :bprevious<CR>
-nnoremap L :bnext<CR>
+nnoremap H :call SafeBnext(-1)<CR>
+nnoremap L :call SafeBnext(1)<CR>
 
 " --- Terminal ---
 if exists(':terminal') == 2
