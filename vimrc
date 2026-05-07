@@ -27,6 +27,9 @@ call plug#end()
 
 let mapleader = "\<Space>"
 set background=dark
+if !has('gui_running') && &t_Co < 256
+  set t_Co=256
+endif
 if has('termguicolors')
   set termguicolors
 endif
@@ -34,8 +37,8 @@ silent! colorscheme anticuus
 
 highlight Normal  ctermbg=NONE guibg=NONE ctermfg=White guifg=#FFFFFF
 highlight NonText ctermbg=NONE guibg=NONE
-highlight CursorLine ctermbg=NONE guibg=NONE
-highlight CursorLineNr ctermfg=Yellow guifg=#E5C07B ctermbg=NONE guibg=NONE cterm=bold gui=bold
+highlight CursorLine term=NONE cterm=NONE gui=NONE ctermbg=NONE guibg=NONE
+highlight CursorLineNr term=bold ctermfg=Yellow guifg=#E5C07B ctermbg=NONE guibg=NONE cterm=bold gui=bold
 highlight HighlightedyankRegion ctermfg=Black guifg=#000000 ctermbg=Yellow guibg=yellow
 highlight NormalNC ctermbg=NONE guibg=NONE
 highlight Search ctermfg=Black guifg=#000000 ctermbg=Yellow guibg=#FFCC66
