@@ -75,6 +75,8 @@ augroup END
 
 augroup vimrc_quickfix
   autocmd!
+  autocmd FileType qf nnoremap <buffer> <Tab> j
+  autocmd FileType qf nnoremap <buffer> <S-Tab> k
   autocmd FileType qf nnoremap <buffer> <CR> <CR>:cclose<CR>
 augroup END
 
