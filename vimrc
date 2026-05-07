@@ -1,4 +1,4 @@
-let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+let data_dir = '~/.vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
   silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 endif
@@ -10,11 +10,19 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
 call plug#begin('~/.vim/plugged')
   Plug 'tpope/vim-surround'
   Plug 'jiangmiao/auto-pairs'
-  Plug 'junegunn/fzf', { 'do': { -> fzf#install()  }  }
-  Plug 'junegunn/fzf.vim'
+  Plug 'junegunn/fzf', { 'do': './install --all' }
+  if v:version < 800
+    Plug 'junegunn/fzf.vim', { 'commit': '5ab282c2f4a597fa655f39f36e7ee8e97bf51650' }
+  else
+    Plug 'junegunn/fzf.vim'
+  endif
   Plug 'mtdl9/vim-log-highlighting'
-  Plug 'machakann/vim-highlightedyank'
   Plug 'osyo-manga/vim-anzu'
+  if v:version < 800 && has('timers')
+    Plug 'machakann/vim-highlightedyank', { 'commit': '03fe057c5836a3f3897a943dc96bdfe3f087890e' }
+  elseif v:version >= 800
+    Plug 'machakann/vim-highlightedyank'
+  endif
 call plug#end()
 
 let mapleader = "\<Space>"
@@ -35,6 +43,11 @@ highlight LineNr ctermbg=NONE guibg=NONE
 highlight Visual ctermbg=Gray guibg=Gray ctermfg=Black guifg=Black
 
 let g:highlightedyank_highlight_duration = 140
+if v:version < 800 && has('timers')
+  nmap y <Plug>(highlightedyank)
+  xmap y <Plug>(highlightedyank)
+  omap y <Plug>(highlightedyank)
+endif
 
 let $FZF_DEFAULT_OPTS = '--bind=tab:up,shift-tab:down'
 let g:fzf_layout = { 'window': 'enew' }
@@ -75,7 +88,9 @@ set shiftwidth=2
 set softtabstop=2
 set expandtab
 set smartindent
-set fillchars=eob:\ 
+if v:version >= 800
+  set fillchars=eob:\ 
+endif
 
 set statusline=%{exists('*anzu#search_status')?anzu#search_status():''}
 
@@ -117,7 +132,7 @@ function! SafeBdelete()
     return
   endif
 
-  let l:buflisted = getbufinfo({'buflisted': 1})
+  let l:buflisted = filter(range(1, bufnr('$')), 'buflisted(v:val)')
   if len(l:buflisted) <= 1
     echohl WarningMsg | echom 'Cannot delete last buffer' | echohl None
     return
@@ -150,13 +165,13 @@ vnoremap > >gv
 nnoremap <C-U> <C-U>zz
 nnoremap <C-D> <C-D>zz
 
-" --- Window navigation (matches nvim <C-h/j/k/l>, skips netrw) ---
+" --- Window navigation (skips netrw) ---
 nnoremap <C-h> :call SafeWincmd('h')<CR>
 nnoremap <C-j> :call SafeWincmd('j')<CR>
 nnoremap <C-k> :call SafeWincmd('k')<CR>
 nnoremap <C-l> :call SafeWincmd('l')<CR>
 
-" --- Window resize (matches nvim <C-Arrow>) ---
+" --- Window resize ---
 nnoremap <C-Right> :vertical resize +10<CR>
 nnoremap <C-Left> :vertical resize -10<CR>
 nnoremap <C-Up> :resize +10<CR>
@@ -184,7 +199,9 @@ nnoremap H :bprevious<CR>
 nnoremap L :bnext<CR>
 
 " --- Terminal ---
-nnoremap <leader>t :below terminal ++rows=10<CR>
+if exists(':terminal') == 2
+  nnoremap <leader>t :below terminal ++rows=10<CR>
+endif
 
 " --- Misc ---
 nnoremap <Leader>ts :execute "normal! a" . strftime('[%b %d %H:%M:%S - BR]')<CR>
