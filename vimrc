@@ -73,6 +73,11 @@ augroup vimrc_netrw
   autocmd FileType netrw nnoremap <buffer> <C-k> :wincmd k<CR>
 augroup END
 
+augroup vimrc_quickfix
+  autocmd!
+  autocmd FileType qf nnoremap <buffer> <CR> <CR>:cclose<CR>
+augroup END
+
 set laststatus=2
 
 set number
