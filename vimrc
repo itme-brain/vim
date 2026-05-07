@@ -3,9 +3,12 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
   silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 endif
 
-autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
-  \| PlugInstall --sync | source $MYVIMRC
-  \| endif
+augroup vimrc_plug_install
+  autocmd!
+  autocmd VimEnter * if exists('g:plugs') && len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+    \| PlugInstall --sync | source $MYVIMRC
+    \| endif
+augroup END
 
 call plug#begin('~/.vim/plugged')
   Plug 'tpope/vim-surround'
@@ -62,10 +65,13 @@ let g:netrw_liststyle = 3
 let g:netrw_browse_split = 4
 let g:netrw_altv = 1
 
-autocmd FileType netrw nnoremap <buffer> <C-l> :wincmd l<CR>
-autocmd FileType netrw nnoremap <buffer> <C-h> :wincmd h<CR>
-autocmd FileType netrw nnoremap <buffer> <C-j> :wincmd j<CR>
-autocmd FileType netrw nnoremap <buffer> <C-k> :wincmd k<CR>
+augroup vimrc_netrw
+  autocmd!
+  autocmd FileType netrw nnoremap <buffer> <C-l> :wincmd l<CR>
+  autocmd FileType netrw nnoremap <buffer> <C-h> :wincmd h<CR>
+  autocmd FileType netrw nnoremap <buffer> <C-j> :wincmd j<CR>
+  autocmd FileType netrw nnoremap <buffer> <C-k> :wincmd k<CR>
+augroup END
 
 set laststatus=2
 
@@ -81,8 +87,12 @@ set smartcase
 set clipboard=unnamedplus
 set noswapfile
 set nobackup
-set undofile
-set undodir=~/.vim/undodir
+if exists('&undofile')
+  set undofile
+  if exists('&undodir')
+    set undodir=~/.vim/undodir
+  endif
+endif
 
 set hidden
 
@@ -109,28 +119,27 @@ function! NetrwToggle()
   let g:netrw_return_win = winnr()
   if exists(':Lexplore') == 2
     Lexplore
-  elseif exists(':Vexplore') == 2
-    execute 'topleft ' . g:netrw_winsize . 'Vexplore'
   else
+    execute 'topleft vertical ' . g:netrw_winsize . 'new'
     Explore
   endif
 endfunction
 
 function! SafeWincmd(dir)
-  let target = winnr(a:dir)
-  if target == winnr()
-    return
-  endif
-  if getbufvar(winbufnr(target), '&filetype') ==# 'netrw'
-    return
-  endif
+  let l:current = winnr()
   execute 'wincmd ' . a:dir
+  if winnr() == l:current
+    return
+  endif
+  if &filetype ==# 'netrw'
+    execute l:current . 'wincmd w'
+  endif
 endfunction
 
 function! GitRoot()
-  let l:root = systemlist('git rev-parse --show-toplevel')
-  if v:shell_error == 0 && !empty(l:root) && !empty(l:root[0])
-    return l:root[0]
+  let l:root = substitute(system('git rev-parse --show-toplevel'), '\n\+$', '', '')
+  if v:shell_error == 0 && !empty(l:root)
+    return l:root
   endif
   return getcwd()
 endfunction
