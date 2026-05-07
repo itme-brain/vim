@@ -161,14 +161,14 @@ function! FzfRg()
     echohl WarningMsg | echom 'No project search command is available' | echohl None
     return
   endif
-  let l:query = input('Search: ')
-  if empty(l:query)
-    return
-  endif
   execute 'lcd ' . fnameescape(GitRoot())
   if executable('rg') && exists(':Rg') == 2
-    execute 'Rg ' . escape(l:query, '|')
+    Rg
   else
+    let l:query = input('Search: ')
+    if empty(l:query)
+      return
+    endif
     let l:results = system('grep -RIn -e ' . shellescape(l:query) . ' . 2>/dev/null')
     if empty(l:results)
       echohl WarningMsg | echom 'No matches found' | echohl None
