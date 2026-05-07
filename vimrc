@@ -1,4 +1,8 @@
 let data_dir = '~/.vim'
+if executable(expand('~/.vim/bin/rg'))
+  let $PATH = expand('~/.vim/bin') . ':' . $PATH
+endif
+
 if empty(glob(data_dir . '/autoload/plug.vim'))
   silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 endif
